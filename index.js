@@ -39,16 +39,23 @@ async function run(){
             res.send({success: true, result});
         });
 
-        // app.get('/available', async(req, res)=>{
-        //     const quantity = req.query.quantity || 1000;
-        //     //step 1
-        //     const parts = await partsCollection.find().toArray();
-        //     //step2
-        //     const query = {quantity: quantity};
-        //     const order = await orderCollection.find().toArray();
+        //show order in my order page
+        app.get('/order', verifyJWT, async (req, res) => {
+            const customer = req.query.customer;
+            const query = { customer: customer };
+            const orders = await orderCollection.find(query).toArray();
+            return res.send(orders);
+            // const decodedEmail = req.decoded.email;
+            // if (patient === decodedEmail) {
+            //     const query = { patient: patient };
+            //     const bookings = await bookingCollection.find(query).toArray();
+            //     return res.send(bookings);
+            // }
+            // else {
+            //     return res.status(403).send({ message: 'forbidden access' })
+            // }
+        }); 
 
-        //     res.send(order);
-        // })
 
         //update parts quantity
         app.patch('/parts/:id', async(req, res)=>{
