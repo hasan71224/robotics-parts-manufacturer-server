@@ -37,7 +37,35 @@ async function run(){
             const order = req.body;
             const result = await orderCollection.insertOne(order);
             res.send({success: true, result});
+        });
+
+        // app.get('/available', async(req, res)=>{
+        //     const quantity = req.query.quantity || 1000;
+        //     //step 1
+        //     const parts = await partsCollection.find().toArray();
+        //     //step2
+        //     const query = {quantity: quantity};
+        //     const order = await orderCollection.find().toArray();
+
+        //     res.send(order);
+        // })
+
+        //update parts quantity
+        app.patch('/parts/:id', async(req, res)=>{
+            const id= req.params.id;
+            const parts= req.body;
+            console.log(parts);
+            const filter = {_id: ObjectId(id)};
+            const updatedDoc = {
+                $set: {
+                    quantity: parts.quantity
+                }
+            }
+            const updatingParts = await partsCollection.updateOne(filter, updatedDoc);
+            res.send(updatingParts);
         })
+
+
     }
     finally{
 
