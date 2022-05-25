@@ -37,6 +37,7 @@ async function run() {
         const orderCollection = client.db("robotics_parts_manufacturer").collection("orders");
         const userCollection = client.db("robotics_parts_manufacturer").collection("users");
         const productCollection = client.db("robotics_parts_manufacturer").collection("products");
+        const ratingCollection = client.db("robotics_parts_manufacturer").collection("ratings");
 
         // admin verification
         const verifyAdmin = async (req, res, next) => {
@@ -156,6 +157,13 @@ async function run() {
         app.post('/product', verifyJWT, verifyAdmin, async (req, res) => {
             const product = req.body;
             const result = await productCollection.insertOne(product);
+            res.send(result);
+        })
+
+        // post product data
+        app.post('/rating', verifyJWT, async (req, res) => {
+            const rating = req.body;
+            const result = await ratingCollection.insertOne(rating);
             res.send(result);
         })
 
