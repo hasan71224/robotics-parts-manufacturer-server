@@ -1,10 +1,10 @@
 const express = require('express');
-const cors= require('cors');
+const cors = require('cors');
 const jwt = require('jsonwebtoken');
-require ('dotenv').config( );
+require('dotenv').config();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const { send } = require('express/lib/response');
-const app = express(); 
+const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(cors());
@@ -30,12 +30,12 @@ function verifyJWT(req, res, next) {
     });
 }
 
-async function run(){
-    try{
+async function run() {
+    try {
         await client.connect();
-        const partsCollection= client.db("robotics_parts_manufacturer").collection("parts");
-        const orderCollection= client.db("robotics_parts_manufacturer").collection("orders");
-        const userCollection= client.db("robotics_parts_manufacturer").collection("users");
+        const partsCollection = client.db("robotics_parts_manufacturer").collection("parts");
+        const orderCollection = client.db("robotics_parts_manufacturer").collection("orders");
+        const userCollection = client.db("robotics_parts_manufacturer").collection("users");
 
         app.get('/parts', async (req, res) => {
             const query = {};
@@ -44,49 +44,44 @@ async function run(){
             res.send(parts);
         });
         // call one parts use id
-        app.get('/parts/:partsId', async(req, res) =>{
+        app.get('/parts/:partsId', async (req, res) => {
             const id = req.params.partsId;
-            const query ={_id: ObjectId(id)};
+            const query = { _id: ObjectId(id) };
             const parts = await partsCollection.findOne(query);
             res.send(parts);
         })
 
-        
+
 
         //show order in my order page
         app.get('/order', verifyJWT, async (req, res) => {
             const customer = req.query.customer;
-
-            console.log('auth header', authorization);
-            const query = { customer: customer };
-            const orders = await orderCollection.find(query).toArray();
-            return res.send(orders);
-            // const decodedEmail = req.decoded.email;
-            // if (patient === decodedEmail) {
-            //     const query = { patient: patient };
-            //     const bookings = await bookingCollection.find(query).toArray();
-            //     return res.send(bookings);
-            // }
-            // else {
-            //     return res.status(403).send({ message: 'forbidden access' })
-            // }
-        }); 
+            const decodedEmail = req.decoded.email;
+            if (customer === decodedEmail) {
+                const query = { customer: customer };
+                const orders = await orderCollection.find(query).toArray();
+                return res.send(orders);
+            }
+            else {
+                return res.status(403).send({ message: 'forbidden access' })
+            }
+        });
 
 
         // order parts
-        app.post('/order', async(req, res) =>{
+        app.post('/order', async (req, res) => {
             const order = req.body;
             const result = await orderCollection.insertOne(order);
-            res.send({success: true, result});
+            res.send({ success: true, result });
         });
 
 
         //update parts quantity
-        app.patch('/parts/:id', async(req, res)=>{
-            const id= req.params.id;
-            const parts= req.body;
+        app.patch('/parts/:id', async (req, res) => {
+            const id = req.params.id;
+            const parts = req.body;
             console.log(parts);
-            const filter = {_id: ObjectId(id)};
+            const filter = { _id: ObjectId(id) };
             const updatedDoc = {
                 $set: {
                     quantity: parts.quantity
@@ -94,6 +89,23 @@ async function run(){
             }
             const updatingParts = await partsCollection.updateOne(filter, updatedDoc);
             res.send(updatingParts);
+        })
+
+        //load all users
+        app.get('/user', verifyJWT, async (req, res) => {
+            const users = await userCollection.find().toArray();
+            res.send(users);
+        })
+
+         //user make admin
+         app.put('/user/admin/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email };
+            const updateDoc = {
+                $set: { role: 'admin' },
+            };
+            const result = await userCollection.updateOne(filter, updateDoc);
+            res.send(result);
         })
 
         //user collection
@@ -115,24 +127,24 @@ async function run(){
         // deleting order
         app.delete('/order/:email', async (req, res) => {
             const email = req.params.email;
-            const filter = {email: email}
+            const filter = { email: email }
             const result = await orderCollection.deleteOne(filter);
             res.send(result);
         })
 
 
     }
-    finally{
+    finally {
 
     }
 }
 
 run().catch(console.dir);
 
-app.get('/', (req, res) =>{
+app.get('/', (req, res) => {
     res.send('hello from robot')
 })
 
-app.listen(port,() =>{
+app.listen(port, () => {
     console.log(`robot app listening port ${port}`);
 })
