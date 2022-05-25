@@ -36,6 +36,7 @@ async function run() {
         const partsCollection = client.db("robotics_parts_manufacturer").collection("parts");
         const orderCollection = client.db("robotics_parts_manufacturer").collection("orders");
         const userCollection = client.db("robotics_parts_manufacturer").collection("users");
+        const productCollection = client.db("robotics_parts_manufacturer").collection("products");
 
         // admin verification
         const verifyAdmin = async (req, res, next) => {
@@ -151,6 +152,12 @@ async function run() {
             res.send(result);
         })
 
+        // post product data
+        app.post('/product', verifyJWT, verifyAdmin, async (req, res) => {
+            const product = req.body;
+            const result = await productCollection.insertOne(product);
+            res.send(result);
+        })
 
     }
     finally {
