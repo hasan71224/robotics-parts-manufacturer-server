@@ -18,6 +18,7 @@ async function run(){
         await client.connect();
         const partsCollection= client.db("robotics_parts_manufacturer").collection("parts");
         const orderCollection= client.db("robotics_parts_manufacturer").collection("orders");
+        const userCollection= client.db("robotics_parts_manufacturer").collection("users");
 
         app.get('/parts', async (req, res) => {
             const query = {};
@@ -33,14 +34,10 @@ async function run(){
             res.send(parts);
         })
 
-        app.post('/order', async(req, res) =>{
-            const order = req.body;
-            const result = await orderCollection.insertOne(order);
-            res.send({success: true, result});
-        });
+        
 
         //show order in my order page
-        app.get('/order', verifyJWT, async (req, res) => {
+        app.get('/order', async (req, res) => {
             const customer = req.query.customer;
             const query = { customer: customer };
             const orders = await orderCollection.find(query).toArray();
@@ -57,6 +54,14 @@ async function run(){
         }); 
 
 
+        // order parts
+        app.post('/order', async(req, res) =>{
+            const order = req.body;
+            const result = await orderCollection.insertOne(order);
+            res.send({success: true, result});
+        });
+
+
         //update parts quantity
         app.patch('/parts/:id', async(req, res)=>{
             const id= req.params.id;
@@ -70,6 +75,30 @@ async function run(){
             }
             const updatingParts = await partsCollection.updateOne(filter, updatedDoc);
             res.send(updatingParts);
+        })
+
+        //user collection
+        app.put('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: user,
+            };
+            const result = await userCollection.updateOne(filter, updateDoc, options);
+            // const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '5h' })
+            res.send({ result, token })
+        })
+
+
+
+        // deleting order
+        app.delete('/order/:email', async (req, res) => {
+            const email = req.params.email;
+            const filter = {email: email}
+            const result = await orderCollection.deleteOne(filter);
+            res.send(result);
         })
 
 
