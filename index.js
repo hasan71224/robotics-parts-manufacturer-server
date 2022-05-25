@@ -144,13 +144,18 @@ async function run() {
         })
 
 
-
         // deleting order
         app.delete('/order/:email', async (req, res) => {
             const email = req.params.email;
             const filter = { email: email }
             const result = await orderCollection.deleteOne(filter);
             res.send(result);
+        })
+
+        //load product in manage product
+        app.get('/product', verifyJWT, verifyAdmin, async (req, res) => {
+            const product = await productCollection.find().toArray();
+            res.send(product);
         })
 
         // post product data
@@ -160,7 +165,7 @@ async function run() {
             res.send(result);
         })
 
-        // post product data
+        // post customer rating
         app.post('/rating', verifyJWT, async (req, res) => {
             const rating = req.body;
             const result = await ratingCollection.insertOne(rating);
