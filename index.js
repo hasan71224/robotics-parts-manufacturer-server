@@ -153,7 +153,7 @@ async function run() {
         })
 
         //load product in manage option      
-        app.get('/product', verifyJWT, verifyAdmin, async (req, res) => {
+        app.get('/product', async (req, res) => {
             const product = await productCollection.find().toArray();
             res.send(product);
         })
@@ -170,6 +170,11 @@ async function run() {
             const rating = req.body;
             const result = await ratingCollection.insertOne(rating);
             res.send(result);
+        })
+        //load rating in home page      
+        app.get('/rating', async (req, res) => {
+            const rating = await ratingCollection.find().toArray();
+            res.send(rating);
         })
 
         // delete product
