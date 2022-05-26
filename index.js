@@ -145,14 +145,14 @@ async function run() {
 
 
         // deleting order
-        app.delete('/order/:email', async (req, res) => {
-            const email = req.params.email;
-            const filter = { email: email }
+        app.delete('/order/:customer', async (req, res) => {
+            const customer = req.params.customer;
+            const filter = { customer: customer }
             const result = await orderCollection.deleteOne(filter);
             res.send(result);
         })
 
-        //load product in manage product
+        //load product in manage option      
         app.get('/product', verifyJWT, verifyAdmin, async (req, res) => {
             const product = await productCollection.find().toArray();
             res.send(product);
@@ -169,6 +169,14 @@ async function run() {
         app.post('/rating', verifyJWT, async (req, res) => {
             const rating = req.body;
             const result = await ratingCollection.insertOne(rating);
+            res.send(result);
+        })
+
+        // delete product
+        app.delete('/product/:name', verifyJWT, verifyAdmin, async (req, res) => {
+            const name = req.params.name;
+            const filter = {name: name}
+            const result = await productCollection.deleteOne(filter);
             res.send(result);
         })
 
