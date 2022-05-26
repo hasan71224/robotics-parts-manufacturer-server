@@ -51,20 +51,38 @@ async function run() {
             }
         }
 
-        app.get('/parts', async (req, res) => {
+
+// parts to product send and update start
+
+        app.get('/product', async (req, res) => {
             const query = {};
-            const cursor = partsCollection.find(query);
-            const parts = await cursor.toArray();
-            res.send(parts);
+            const cursor = productCollection.find(query);
+            const product = await cursor.toArray();
+            res.send(product);
         });
         // call one parts use id
-        app.get('/parts/:partsId', async (req, res) => {
-            const id = req.params.partsId;
+        app.get('/product/:productId', async (req, res) => {
+            const id = req.params.productId;
             const query = { _id: ObjectId(id) };
-            const parts = await partsCollection.findOne(query);
-            res.send(parts);
+            const product = await productCollection.findOne(query);
+            res.send(product);
         })
 
+         //update parts quantity
+         app.patch('/product/:id', async (req, res) => {
+            const id = req.params.id;
+            const product = req.body;
+            console.log(product);
+            const filter = { _id: ObjectId(id) };
+            const updatedDoc = {
+                $set: {
+                    quantity: product.quantity
+                }
+            }
+            const updatingProduct = await productCollection.updateOne(filter, updatedDoc);
+            res.send(updatingProduct);
+        })
+// parts to product send and update end
 
 
         //show order in my order page
@@ -81,7 +99,6 @@ async function run() {
             }
         });
 
-
         // order parts
         app.post('/order', async (req, res) => {
             const order = req.body;
@@ -89,21 +106,6 @@ async function run() {
             res.send({ success: true, result });
         });
 
-
-        //update parts quantity
-        app.patch('/parts/:id', async (req, res) => {
-            const id = req.params.id;
-            const parts = req.body;
-            console.log(parts);
-            const filter = { _id: ObjectId(id) };
-            const updatedDoc = {
-                $set: {
-                    quantity: parts.quantity
-                }
-            }
-            const updatingParts = await partsCollection.updateOne(filter, updatedDoc);
-            res.send(updatingParts);
-        })
 
         //load all users
         app.get('/user', verifyJWT, async (req, res) => {
