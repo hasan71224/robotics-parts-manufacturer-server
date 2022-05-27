@@ -154,7 +154,7 @@ async function run() {
                     transactionId: payment.transactionId
                 }
             }
-            const result = await paymentCollection.insertOne(payment);
+            // const result = await paymentCollection.insertOne(payment);
             const updatedOrder = await orderCollection.updateOne(filter, updatedDoc);
             res.send(updatedOrder);
 
