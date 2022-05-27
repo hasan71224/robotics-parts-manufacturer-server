@@ -212,7 +212,6 @@ async function run() {
         app.delete('/order/:id', async (req, res) => {
             const id = req.params.id;
             const filter = { _id: ObjectId(id) }
-            console.log("backend", filter);
             const result = await orderCollection.deleteOne(filter);
             res.send(result);
         })
