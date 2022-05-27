@@ -101,6 +101,26 @@ async function run() {
             }
         });
 
+
+
+        //show order in my Manage All order page
+        app.get('/manageOrder',  async (req, res) => {
+            const admin = req.query.admin;
+            // const decodedEmail = req.decoded.email;
+            // if (customer === decodedEmail) {
+                const query = { admin: admin };
+                const orders = await orderCollection.find(query).toArray();
+                return res.send(orders);
+            // }
+            // else {
+            //     return res.status(403).send({ message: 'forbidden access' })
+            // }
+        });
+
+
+
+
+
         // order payment option start
 
         // order id find for payment
@@ -189,9 +209,10 @@ async function run() {
 
 
         // deleting order
-        app.delete('/order/:customer', async (req, res) => {
-            const customer = req.params.customer;
-            const filter = { customer: customer }
+        app.delete('/order/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
+            console.log("backend", filter);
             const result = await orderCollection.deleteOne(filter);
             res.send(result);
         })
